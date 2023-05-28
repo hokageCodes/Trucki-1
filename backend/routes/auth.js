@@ -5,10 +5,11 @@ const jwt = require('jsonwebtoken');
 
 // Super Admin Model
 const SuperAdmin = require('../models/SuperAdmin');
+const sendPasswordResetEmail = require('../sendEmail');
 
 
 // Super Admin Signup Route
-router.post('/superadmin-signup', async (req, res) => {
+router.post('/superadmin/signup', async (req, res) => {
     const { email, password } = req.body;
 
     try {
@@ -37,7 +38,7 @@ router.post('/superadmin-signup', async (req, res) => {
 
 
 // Super Admin Login Route
-router.post('/superadmin-login', async (req, res) => {
+router.post('/superadmin/login', async (req, res) => {
     const { email, password } = req.body;
 
     try {
@@ -67,7 +68,7 @@ router.post('/superadmin-login', async (req, res) => {
 });
 
 // Forgot Password Route
-router.post('/forgot-password', async (req, res) => {
+router.post('/superadmin/forgot-password', async (req, res) => {
     const { email } = req.body;
 
     try {
@@ -89,18 +90,21 @@ router.post('/forgot-password', async (req, res) => {
     
         // Generate the reset link
         const resetLink = `${token}`;
-    
+    console.log(
+    token
+    )
         // Send the password reset email
         sendPasswordResetEmail(user.email, resetLink);
     
         res.status(200).json({ message: 'Password reset email sent' });
         } catch (error) {
+            console.log({error})
         res.status(500).json({ message: 'An error occurred' });
         }
     });
 
   // Reset Password Route
-router.post('/reset-password/:token', async (req, res) => {
+router.post('/superadmin/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { password } = req.body;
 
@@ -122,9 +126,9 @@ router.post('/reset-password/:token', async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 12);
         user.password = hashedPassword;
-        await user.save();
+       const newUser = await user.save();
 
-        res.status(200).json({ message: 'Password updated successfully' });
+        res.status(200).json({ message: 'Password updated successfully',user:  newUser });
     } catch (error) {
         res.status(500).json({ message: 'An error occurred' });
     }
