@@ -1,0 +1,190 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.login-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100vh;
+}
+.left-section {
+    margin-left: 80px;
+    max-width: 40%;
+}
+.right-section {
+    width: 50%;
+}
+.logo {
+    width: 509px;
+    height: 37px;
+    margin-bottom: 98px;
+}
+.form-container>h1 {
+    font-family: 'Aeonik';
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 38px;
+    color: #000000;
+    margin-bottom: 16px;
+}
+.sign-in {
+    font-family: 'Aeonik';
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 19px;
+    color: #545454;
+    margin-bottom: 48px;
+}
+.form-fields>input {
+    width: 506px;
+    height: 50px; 
+    border: 1px solid #E6E6E6;
+    border-radius: 4px;
+}
+input::placeholder {
+    font-family: 'Aeonik';
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: #808080; 
+    text-indent: 16px;
+}
+
+.email {
+    margin-bottom: 24px;
+}
+.forgot {
+    margin-top: 16px;
+    margin-left: 420px;
+    margin-bottom: 64px;
+    font-family: 'Aeonik';
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 14px;
+    color: #360568;
+    cursor: pointer;
+}
+.sign-in-button {
+    border: none;
+    outline: none;
+    width: 506px;
+    height: 42px;
+    color: #fff;
+    background: #360568;
+    border-radius: 4px;
+}
+
+/* Right Login */
+.right-section {
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 100px;
+    height: 100%;
+    background: #360568;
+}
+.right-section>img {
+    width: 651px;
+    height: 408px;
+}
+
+
+@media only screen and (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        margin-top: 100px;
+        align-items: center;
+        padding: 0 20px;
+    }
+    .left-section {
+        margin-left: 0;
+        max-width: 100%;
+    }
+    .right-section {
+        display: none;
+    }
+    .form-container {
+        margin-top: 40px;
+    }
+    .logo {
+        width: 100%;
+        margin-bottom: 40px;
+    }
+    .form-fields>input {
+        width: 100%;
+    }
+    .forgot {
+        margin-left: 0;
+        text-align: center;
+    }
+    .sign-in-button {
+        width: 100%;
+    }
+    .form-container {
+        width: 550px;
+        height: 550px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+@media only screen and (max-width: 414px) {
+    .form-container {
+        overflow: hidden;
+        display: flex;
+        justify-content: center;
+        width: 360px;
+        height: 400px;
+    }
+    .form-container>h1 {
+        font-size: 24px;
+        line-height: 28px;
+        text-align: center;
+    }
+    .sign-in {
+        font-size: 14px;
+        line-height: 16px;
+        margin-bottom: 24px;
+    }
+    .form-fields>input {
+        width: 100%;
+    }
+    .forgot {
+        margin-left: 0;
+        text-align: center;
+    }
+}
+
+@media only screen and (max-width: 412px) {
+    .form-container {
+        width: 320px;
+    }
+    .form-container>h1 {
+        font-size: 22px;
+        line-height: 26px;
+        text-align: center;
+    }
+    .sign-in {
+        font-size: 12px;
+        line-height: 14px;
+    }
+}
+
+@media only screen and (max-width: 375px) {
+    .form-container>h1 {
+        font-size: 20px;
+        line-height: 24px;
+        text-align: center;
+    }
+    .sign-in {
+        font-size: 10px;
+        line-height: 12px;
+    }
+}

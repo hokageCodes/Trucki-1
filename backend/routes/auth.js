@@ -1,177 +1,132 @@
 const express = require('express');
+const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const router = express.Router();
 
-const User = require('../models/User');
-const { JWT_SECRET } = process.env;
+// Super Admin Model
+const SuperAdmin = require('../models/SuperAdmin');
 
-// Super Admin Signup
-router.post('/superadmin/signup', async (req, res) => {
+
+// Super Admin Signup Route
+router.post('/superadmin-signup', async (req, res) => {
+    const { email, password } = req.body;
+
     try {
-        const { email, password } = req.body;
-
-        // Check if the email is already registered
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ error: 'Email already exists' });
+        // Check if the email already exists in the database
+        const existingSuperAdmin = await SuperAdmin.findOne({ email });
+        if (existingSuperAdmin) {
+        return res.status(409).json({ message: 'Email already registered' });
         }
 
         // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 12);
 
-        // Create a new user
-        const newUser = new User({
-            email,
-            password: hashedPassword,
-            role: 'superadmin',
-        });
-
-        // Save the user to the database
-        await newUser.save();
-
-        res.status(200).json({ message: 'Super admin created successfully' });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
-// Admin Signup
-router.post('/admin/signup', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-
-        // Check if the email is already registered
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-        return res.status(400).json({ error: 'Email already exists' });
-        }
-
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Create a new user
-        const newUser = new User({
+        // Create a new super admin
+        const superAdmin = new SuperAdmin({
         email,
         password: hashedPassword,
-        role: 'admin',
         });
 
-        // Save the user to the database
-        await newUser.save();
+        await superAdmin.save();
 
-        res.status(200).json({ message: 'Admin created successfully' });
+        res.status(201).json({ message: 'Super admin created successfully' });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ message: 'An error occurred' });
     }
 });
 
-// Client Signup
-router.post('/client/signup', async (req, res) => {
-    try {
-        const { email, password } = req.body;
 
-        // Check if the email is already registered
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-        return res.status(400).json({ error: 'Email already exists' });
+// Super Admin Login Route
+router.post('/superadmin-login', async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        // Check if the email exists in the database
+        const superAdmin = await SuperAdmin.findOne({ email });
+        if (!superAdmin) {
+            return res.status(404).json({ message: 'Super admin not found' });
         }
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Check if the password matches
+        const isPasswordCorrect = await bcrypt.compare(password, superAdmin.password);
+        if (!isPasswordCorrect) {
+            return res.status(400).json({ message: 'Invalid password' });
+        }
 
-        // Create a new user
-        const newUser = new User({
-        email,
-        password: hashedPassword,
-        role: 'client',
-        });
+        // Generate a JWT token
+        const token = jwt.sign(
+        { userId: superAdmin._id, role: 'superadmin' },
+        'secret',
+        { expiresIn: '1h' }
+        );
 
-        // Save the user to the database
-        await newUser.save();
-
-        res.status(200).json({ message: 'Client created successfully' });
+        res.status(200).json({ token });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ message: 'An error occurred' });
     }
 });
 
-// Super Admin Login
-router.post('/superadmin/login', async (req, res) => {
-    // Super Admin Login
-router.post('/superadmin/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
+// Forgot Password Route
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
 
-      // Find the user by email
-        const user = await User.findOne({ email });
+    try {
+      // Check if the email exists in the super admin collection
+        let user = await SuperAdmin.findOne({ email });
+
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            // Check if the email exists in the admin collection
+            user = await Admin.findOne({ email });
         }
-
-      // Compare the provided password with the stored password
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (!passwordMatch) {
-            return res.status(401).json({ error: 'Invalid credentials' });
+    
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
         }
-
-      // Create and sign a JWT token
-        const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-            expiresIn: '1d',
+        // Generate a password reset token
+        const token = jwt.sign({ userId: user._id }, 'secret', {
+            expiresIn: '1h',
         });
-      // Redirect to the dashboard page
-        res.redirect('/dashboard');
+    
+        // Generate the reset link
+        const resetLink = `${token}`;
+    
+        // Send the password reset email
+        sendPasswordResetEmail(user.email, resetLink);
+    
+        res.status(200).json({ message: 'Password reset email sent' });
         } catch (error) {
-            console.log(error);
-            res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ message: 'An error occurred' });
         }
     });
-});
 
-// Admin Login
-router.post('/admin/login', async (req, res) => {
-    try {
-        // Handle admin login logic
-        // ...
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+  // Reset Password Route
+router.post('/reset-password/:token', async (req, res) => {
+    const { token } = req.params;
+    const { password } = req.body;
 
-// Client Login
-router.post('/client/login', async (req, res) => {
     try {
-        // Handle client login logic
-        // ...
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+      // Verify the password reset token
+        const decodedToken = jwt.verify(token, 'secret');
+        const userId = decodedToken.userId;
 
-// Forgot Password
-router.post('/forgot-password', async (req, res) => {
-    try {
-        // Handle forgot password logic
-        // ...
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
+        // Update the user's password
+        let user = await SuperAdmin.findById(userId);
 
-// Reset Password
-router.post('/reset-password/:resetToken', async (req, res) => {
-    try {
-        // Handle reset password logic
-        // ...
+        if (!user) {
+            user = await Admin.findById(userId);
+        }
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 12);
+        user.password = hashedPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password updated successfully' });
     } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ message: 'An error occurred' });
     }
 });
 
