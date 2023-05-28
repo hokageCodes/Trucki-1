@@ -101,31 +101,34 @@ router.post('/client/signup', async (req, res) => {
 
 // Super Admin Login
 router.post('/superadmin/login', async (req, res) => {
+    // Super Admin Login
+router.post('/superadmin/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Find the user by email
+      // Find the user by email
         const user = await User.findOne({ email });
         if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+            return res.status(404).json({ error: 'User not found' });
         }
 
-        // Compare the provided password with the stored password
+      // Compare the provided password with the stored password
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
-        return res.status(401).json({ error: 'Invalid credentials' });
+            return res.status(401).json({ error: 'Invalid credentials' });
         }
 
-        // Create and sign a JWT token
+      // Create and sign a JWT token
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-        expiresIn: '1d',
+            expiresIn: '1d',
         });
-
-        res.status(200).json({ token });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
+      // Redirect to the dashboard page
+        res.redirect('/dashboard');
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    });
 });
 
 // Admin Login
