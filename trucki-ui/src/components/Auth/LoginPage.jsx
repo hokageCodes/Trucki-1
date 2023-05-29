@@ -15,8 +15,8 @@ export default function LoginPage() {
 console.log('err')
         try {
             let data = JSON.stringify({
-                "email": "olajuwonlawal2012@gmail.com",
-                "password": "olajuwon1"
+                "email": email,
+                "password": password
               });
 
             //   let config = {
@@ -29,14 +29,17 @@ console.log('err')
             //     },
             //     data : data
             //   };
-
-            const response  = await axios.post('http://localhost:5000/api/auth/superadmin/login', data).then(res=>res).catch(res => res.response);
-            console.log({response})
+// console.log(data)
+            const response  = await axios.post('http://localhost:5000/api/auth/superadmin/login', {
+                "email": email,
+                "password": password
+              }).then(res=>res).catch(res => res.response);
+            console.log("srtatus",{response})
         // const response = await axios.request(config).then(res => res).catch(err=> err);
         if (response.status === 200) {
             console.log(response.data);
             // Handle success, e.g., redirect user, show a success message, etc.
-            // window.location.href = '/dashboard'; // Redirect to superadmin dashboard
+            window.location.href = '/dashboard'; // Redirect to superadmin dashboard
         } else {
             setError(response.data.error || response.data.message);
         }
